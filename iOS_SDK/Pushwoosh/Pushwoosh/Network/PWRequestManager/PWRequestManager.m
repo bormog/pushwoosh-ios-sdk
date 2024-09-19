@@ -274,9 +274,39 @@
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:requestUrl]];
     [urlRequest setHTTPMethod:@"POST"];
     [urlRequest addValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [urlRequest addValue:[NSString stringWithFormat:@"Token %@", [self getApiToken]] forHTTPHeaderField:@"Authorization"];
     [urlRequest setHTTPBody:[jsonRequestData dataUsingEncoding:NSUTF8StringEncoding]];
     
     return urlRequest;
+}
+
+- (NSString *)getApiToken {
+    if (![[PWConfig config] apiToken] || [[[PWConfig config] apiToken] isEqualToString:@""]) {
+        PWLogError(@"\n"
+                   @"\n"
+                   @"*********************************************************\n"
+                   @"*                                                       *\n"
+                   @"*  !!! WARNING: PUSHWOOSH PW_API_TOKEN IS MISSING !!!   *\n"
+                   @"*                                                       *\n"
+                   @"*    ------------------------------------------------   *\n"
+                   @"*   |                                                |  *\n"
+                   @"*   |  It looks like you forgot to add               |  *\n"
+                   @"*   |  PW_API_TOKEN to your Info.plist file.         |  *\n"
+                   @"*   |  The token is either missing or empty.         |  *\n"
+                   @"*   |  Please make sure to add it to ensure          |  *\n"
+                   @"*   |  PUSHWOOSH services work correctly.            |  *\n"
+                   @"*   |                                                |  *\n"
+                   @"*    ------------------------------------------------   *\n"
+                   @"*                                                       *\n"
+                   @"*  For more information, please refer to the            *\n"
+                   @"*  documentation:                                       *\n"
+                   @"*  https://docs.pushwoosh.com/platform-docs             *\n"
+                   @"*                                                       *\n"
+                   @"*********************************************************\n"
+                   @"\n"
+                   );
+    }
+    return [[PWConfig config] apiToken];
 }
 
 - (void)processResponse:(NSHTTPURLResponse *)httpResponse responseData:(NSData *)responseData request:(PWRequest *)request url:(NSString *)requestUrl requestData:(NSString *)requestData error:(NSError **)outError {

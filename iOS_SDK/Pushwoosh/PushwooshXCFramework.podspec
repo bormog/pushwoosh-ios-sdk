@@ -5,7 +5,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "PushwooshXCFramework"
-  s.version      = "6.5.19"
+  s.version      = "6.7.3"
   s.summary      = "Push notifications library by Pushwoosh."
   s.platform     = :ios
 
@@ -21,10 +21,10 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.xcconfig = { 'OTHER_LDFLAGS' => '-ObjC' }
   s.default_subspec = 'Core'
-  s.ios.deployment_target = "9.0"
+  s.ios.deployment_target = "11.0"
 
   s.subspec 'Core' do |core|
-    core.ios.vendored_frameworks  = 'XCFramework/Pushwoosh.xcframework'
+    core.ios.vendored_frameworks  = 'XCFramework/PushwooshFramework.xcframework'
     core.library  = 'c++', 'z'
     core.frameworks  = 'Security', 'StoreKit'
   end

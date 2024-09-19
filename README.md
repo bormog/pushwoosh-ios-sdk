@@ -1,7 +1,7 @@
 Pushwoosh iOS SDK
 =====================
 
-[![GitHub release](https://img.shields.io/github/release/Pushwoosh/pushwoosh-ios-sdk.svg?style=flat-square)](https://github.com/Pushwoosh/pushwoosh-ios-sdk/releases) 
+[![GitHub release](https://img.shields.io/github/release/Pushwoosh/pushwoosh-ios-sdk.svg?style=flat-square)](https://github.com/Pushwoosh/pushwoosh-ios-sdk/releases)
 [![CocoaPods compatible](https://img.shields.io/cocoapods/v/Pushwoosh.svg)](https://cocoapods.org/?q=pushwoosh)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
@@ -19,5 +19,3 @@ https://github.com/Pushwoosh/pushwoosh-ios-sdk/tree/master/Documentation
 
 Pushwoosh team
 http://www.pushwoosh.com
-Release 
-Release 
