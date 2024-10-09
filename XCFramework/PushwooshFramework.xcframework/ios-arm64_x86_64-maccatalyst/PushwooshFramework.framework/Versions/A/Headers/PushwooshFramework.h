@@ -18,7 +18,7 @@
 
 #endif
 
-#define PUSHWOOSH_VERSION @"6.8.3"
+#define PUSHWOOSH_VERSION @"6.8.5"
 
 
 @class Pushwoosh, PWMessage, PWNotificationCenterDelegateProxy;
