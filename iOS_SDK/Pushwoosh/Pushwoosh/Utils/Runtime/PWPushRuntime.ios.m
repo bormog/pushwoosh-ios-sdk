@@ -1,7 +1,7 @@
 //
 //  PushRuntime.m
 //  Pushwoosh SDK
-//  (c) Pushwoosh 2012
+//  (c) Pushwoosh 2024
 //
 
 #import <objc/runtime.h>
@@ -49,24 +49,24 @@ static IMP pw_original_didFinishLaunchingWithOptions;
 
 //auto test that simulates push notification on start
 BOOL dynamicDidFinishLaunchingAutoTest(id self, SEL _cmd, id application, id launchOptions) {
-	//create test push payload if we are self testing
-	if ([PWPushRuntime isSelfTestEnabled]) {
-		NSMutableDictionary *launchOpts = [NSMutableDictionary new];
-		NSMutableDictionary *apsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Alert!", @"alert", @"sound", @"default", nil];
-		NSMutableDictionary *startPush = [NSMutableDictionary dictionaryWithObjectsAndKeys:apsDict, @"aps", @"0", @"p", nil];
+    //create test push payload if we are self testing
+    if ([PWPushRuntime isSelfTestEnabled]) {
+        NSMutableDictionary *launchOpts = [NSMutableDictionary new];
+        NSMutableDictionary *apsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Alert!", @"alert", @"sound", @"default", nil];
+        NSMutableDictionary *startPush = [NSMutableDictionary dictionaryWithObjectsAndKeys:apsDict, @"aps", @"0", @"p", nil];
 
-		launchOpts[UIApplicationLaunchOptionsRemoteNotificationKey] = startPush;
-		launchOptions = launchOpts;
-	}
+        launchOpts[UIApplicationLaunchOptionsRemoteNotificationKey] = startPush;
+        launchOptions = launchOpts;
+    }
 
-	return [self application:application pw_didFinishLaunchingWithOptionsAutoTest:launchOptions];
+    return [self application:application pw_didFinishLaunchingWithOptionsAutoTest:launchOptions];
 }
 
 BOOL _replacement_didFinishLaunchingWithOptionsExtensionRequest(id self, SEL _cmd, UIApplication *application, NSDictionary *launchOptions) {
     ((BOOL(*)(id, SEL, UIApplication *, NSDictionary *))pw_original_didFinishLaunchingWithOptionsExtension)(self, _cmd, application, launchOptions);
     
     BOOL result = YES;
-    
+
     [[PWAppLifecycleTrackingManager sharedManager] startTracking];
     
     return result;
@@ -91,33 +91,33 @@ void _replacement_didReceiveRemoteNotification(id self, SEL _cmd, UIApplication 
 }
 
 BOOL dynamicOpenURLSourceApplicationAnnotation(id self, SEL _cmd, id application, id openURL, id sourceApplication, id annotation) {
-	if ([application pw_checkURL:openURL])
-		return YES;
+    if ([application pw_checkURL:openURL])
+        return YES;
 
-	if ([self respondsToSelector:@selector(application:pw_openURL:sourceApplication:annotation:)]) {
-		return [self application:application pw_openURL:openURL sourceApplication:sourceApplication annotation:annotation];
-	}
-	return NO;
+    if ([self respondsToSelector:@selector(application:pw_openURL:sourceApplication:annotation:)]) {
+        return [self application:application pw_openURL:openURL sourceApplication:sourceApplication annotation:annotation];
+    }
+    return NO;
 }
 
 BOOL dynamicOpenURLOptions(id self, SEL _cmd, id application, id openURL, id options) {
-	if ([application pw_checkURL:openURL])
-		return YES;
+    if ([application pw_checkURL:openURL])
+        return YES;
 
-	if ([self respondsToSelector:@selector(application:pw_openURL:options:)]) {
-		return [self application:application pw_openURL:openURL options:options];
-	}
-	return NO;
+    if ([self respondsToSelector:@selector(application:pw_openURL:options:)]) {
+        return [self application:application pw_openURL:openURL options:options];
+    }
+    return NO;
 }
 
 BOOL dynamicHandleOpenURL(id self, SEL _cmd, id application, id openURL) {
-	if ([application pw_checkURL:openURL])
-		return YES;
+    if ([application pw_checkURL:openURL])
+        return YES;
 
-	if ([self respondsToSelector:@selector(application:pw_handleOpenURL:)]) {
-		return [self application:application pw_handleOpenURL:openURL];
-	}
-	return NO;
+    if ([self respondsToSelector:@selector(application:pw_handleOpenURL:)]) {
+        return [self application:application pw_handleOpenURL:openURL];
+    }
+    return NO;
 }
 
 void dynamicSceneOpenURLContexts(id self, SEL _cmd, id scene, id contexts) {
@@ -139,7 +139,7 @@ void dynamicSceneOpenURLContexts(id self, SEL _cmd, id scene, id contexts) {
 }
 
 - (BOOL)pw_checkURL:(NSURL *)url {
-	return [PWUtils handleURL:url];
+    return [PWUtils handleURL:url];
 }
 
 static BOOL openURLSwizzled = NO;
@@ -151,25 +151,25 @@ static BOOL openURLSwizzled = NO;
     if (openURLSwizzled)
         return;
     openURLSwizzled = YES;
-	if ([delegateClass instancesRespondToSelector:@selector(application:openURL:options:)]) {
-		[PWUtils swizzle:delegateClass
-			  fromSelector:@selector(application:openURL:options:)
-				toSelector:@selector(application:pw_openURL:options:)
-			implementation:(IMP)dynamicOpenURLOptions
-			  typeEncoding:"v@:::::"];
-	}
-	if ([delegateClass instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
-		[PWUtils swizzle:delegateClass
-			  fromSelector:@selector(application:openURL:sourceApplication:annotation:)
-				toSelector:@selector(application:pw_openURL:sourceApplication:annotation:)
-			implementation:(IMP)dynamicOpenURLSourceApplicationAnnotation
-			  typeEncoding:"v@:::::"];
-	}
-	[PWUtils swizzle:delegateClass
-		  fromSelector:@selector(application:handleOpenURL:)
-			toSelector:@selector(application:pw_handleOpenURL:)
-		implementation:(IMP)dynamicHandleOpenURL
-		  typeEncoding:"v@:::::"];
+    if ([delegateClass instancesRespondToSelector:@selector(application:openURL:options:)]) {
+        [PWUtils swizzle:delegateClass
+              fromSelector:@selector(application:openURL:options:)
+                toSelector:@selector(application:pw_openURL:options:)
+            implementation:(IMP)dynamicOpenURLOptions
+              typeEncoding:"v@:::::"];
+    }
+    if ([delegateClass instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
+        [PWUtils swizzle:delegateClass
+              fromSelector:@selector(application:openURL:sourceApplication:annotation:)
+                toSelector:@selector(application:pw_openURL:sourceApplication:annotation:)
+            implementation:(IMP)dynamicOpenURLSourceApplicationAnnotation
+              typeEncoding:"v@:::::"];
+    }
+    [PWUtils swizzle:delegateClass
+          fromSelector:@selector(application:handleOpenURL:)
+            toSelector:@selector(application:pw_handleOpenURL:)
+        implementation:(IMP)dynamicHandleOpenURL
+          typeEncoding:"v@:::::"];
     
     //Scene environment support
     NSDictionary *sceneManifest = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
@@ -291,6 +291,11 @@ static BOOL openURLSwizzled = NO;
     [self pw_setDelegate:proxy ? : delegate];
 }
 
+- (void)swizzle_didFinishLaunchingWithOptions:(Class)delegateClass {
+    Method originalMethod = class_getInstanceMethod(delegateClass, @selector(application:didFinishLaunchingWithOptions:));
+    pw_original_didFinishLaunchingWithOptions = method_setImplementation(originalMethod, (IMP)_replacement_didFinishLaunchingWithOptions);
+}
+
 - (void)swizzle_didFinishLaunchingWithOptionsForExtensionRequest:(Class)delegateClass {
     static BOOL swizzleDone = NO;
     if (swizzleDone)
@@ -325,71 +330,6 @@ void _replacement_didRegisterForRemoteNotificationWithToken(id self, SEL _cmd, U
     }
 }
 
-void _replacement_didFailToRegisterForRemoteNotificationsWithError(id self, SEL _cmd, UIApplication *application, NSError *error) {
-    if ([self respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]) {
-        ((void(*)(id, SEL, UIApplication*, NSError*))pw_original_didFailToRegisterForRemoteNotificationsWithError_Imp)(self, _cmd, application, error);
-    }
-
-    PWLogError(@"Error registering for push notifications. Error: %@", error);
-
-    if ([[PWPreferences preferences] hasAppCode]) {
-        [[PushNotificationManager pushManager] handlePushRegistrationFailure:error];
-    }
-}
-
-void _replacement_setApplicationIconBadgeNumber(UIApplication * self, SEL _cmd, NSInteger badgeNumber) {
-    ((void(*)(id,SEL,NSInteger))pw_original_setApplicationIconBadgeNumber_Imp)(self, _cmd, badgeNumber);
-    
-    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:[[PWConfig config] appGroupsName]];
-    [defaults setInteger:badgeNumber forKey:@"badge_count"];
-}
-
-+ (void)load {
-    if ([[PWConfig config] lazyInitialization]) {
-        return;
-    }
-
-    static BOOL swizzleDone = NO;
-    if (swizzleDone)
-        return;
-    swizzleDone = YES;
-	//make sure app badges work
-    [self.class swizzle_setApplicationIconBadgeNumber];
-
-	method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(pw_setDelegate:)));
-
-	NSLog(@"Pushwoosh: Initializing application runtime");
-
-	if ([PWPushRuntime isSelfTestEnabled]) {
-		//register for push notifications does not work on simulator, swizzle it
-        [self.class swizzle_registerForRemoteNotifications];
-	}
-}
-
-- (void)swizzle_didFinishLaunchingWithOptions:(Class)delegateClass {
-    Method originalMethod = class_getInstanceMethod(delegateClass, @selector(application:didFinishLaunchingWithOptions:));
-    pw_original_didFinishLaunchingWithOptions = method_setImplementation(originalMethod, (IMP)_replacement_didFinishLaunchingWithOptions);
-}
-
-- (void)swizzle_didRegisterForRemoteNotificationsWithDeviceToken:(Class)delegateClass {
-    Method originalMethod = class_getInstanceMethod(delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
-    pw_original_didRegisterForRemoteNotificationWithDeviceToken_Imp = method_setImplementation(originalMethod, (IMP)_replacement_didRegisterForRemoteNotificationWithToken);
-}
-
-- (void)swizzle_didFailToRegisterForRemoteNotificationsWithError:(Class)delegateClass {
-    Method originalMethod = class_getInstanceMethod(delegateClass, @selector(application:didFailToRegisterForRemoteNotificationsWithError:));
-    pw_original_didFailToRegisterForRemoteNotificationsWithError_Imp = method_setImplementation(originalMethod, (IMP)_replacement_didFailToRegisterForRemoteNotificationsWithError);
-}
-
-+ (void)swizzle_setApplicationIconBadgeNumber {
-    Method originalMethod = class_getInstanceMethod([UIApplication class], @selector(setApplicationIconBadgeNumber:));
-    pw_original_setApplicationIconBadgeNumber_Imp = method_setImplementation(originalMethod, (IMP)_replacement_setApplicationIconBadgeNumber);
-}
-
-+ (void)swizzle_registerForRemoteNotifications {
-    Method originalMethod = class_getInstanceMethod(self, @selector(registerForRemoteNotifications));
-    pw_original_registerForRemoteNotifications_Imp = method_setImplementation(originalMethod, (IMP)_replacement_registerForRemoteNotifications);
-}
 
 BOOL _replacement_didFinishLaunchingWithOptions(id self, SEL _cmd, UIApplication *application, NSDictionary *launchOptions) {
     BOOL result = YES;
@@ -422,6 +362,64 @@ BOOL _replacement_didFinishLaunchingWithOptions(id self, SEL _cmd, UIApplication
     return result;
 }
 
+
+void _replacement_didFailToRegisterForRemoteNotificationsWithError(id self, SEL _cmd, UIApplication *application, NSError *error) {
+    if ([self respondsToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)]) {
+        ((void(*)(id, SEL, UIApplication*, NSError*))pw_original_didFailToRegisterForRemoteNotificationsWithError_Imp)(self, _cmd, application, error);
+    }
+
+    PWLogError(@"Error registering for push notifications. Error: %@", error);
+
+    if ([[PWPreferences preferences] hasAppCode]) {
+        [[PushNotificationManager pushManager] handlePushRegistrationFailure:error];
+    }
+}
+
+void _replacement_setApplicationIconBadgeNumber(UIApplication * self, SEL _cmd, NSInteger badgeNumber) {
+    ((void(*)(id,SEL,NSInteger))pw_original_setApplicationIconBadgeNumber_Imp)(self, _cmd, badgeNumber);
+    
+    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:[[PWConfig config] appGroupsName]];
+    [defaults setInteger:badgeNumber forKey:@"badge_count"];
+}
+
++ (void)load {
+    static BOOL swizzleDone = NO;
+    if (swizzleDone)
+        return;
+    swizzleDone = YES;
+    //make sure app badges work
+    [self.class swizzle_setApplicationIconBadgeNumber];
+
+    method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(pw_setDelegate:)));
+
+    NSLog(@"Pushwoosh: Initializing application runtime");
+
+    if ([PWPushRuntime isSelfTestEnabled]) {
+        //register for push notifications does not work on simulator, swizzle it
+        [self.class swizzle_registerForRemoteNotifications];
+    }
+}
+
+- (void)swizzle_didRegisterForRemoteNotificationsWithDeviceToken:(Class)delegateClass {
+    Method originalMethod = class_getInstanceMethod(delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
+    pw_original_didRegisterForRemoteNotificationWithDeviceToken_Imp = method_setImplementation(originalMethod, (IMP)_replacement_didRegisterForRemoteNotificationWithToken);
+}
+
+- (void)swizzle_didFailToRegisterForRemoteNotificationsWithError:(Class)delegateClass {
+    Method originalMethod = class_getInstanceMethod(delegateClass, @selector(application:didFailToRegisterForRemoteNotificationsWithError:));
+    pw_original_didFailToRegisterForRemoteNotificationsWithError_Imp = method_setImplementation(originalMethod, (IMP)_replacement_didFailToRegisterForRemoteNotificationsWithError);
+}
+
++ (void)swizzle_setApplicationIconBadgeNumber {
+    Method originalMethod = class_getInstanceMethod([UIApplication class], @selector(setApplicationIconBadgeNumber:));
+    pw_original_setApplicationIconBadgeNumber_Imp = method_setImplementation(originalMethod, (IMP)_replacement_setApplicationIconBadgeNumber);
+}
+
++ (void)swizzle_registerForRemoteNotifications {
+    Method originalMethod = class_getInstanceMethod(self, @selector(registerForRemoteNotifications));
+    pw_original_registerForRemoteNotifications_Imp = method_setImplementation(originalMethod, (IMP)_replacement_registerForRemoteNotifications);
+}
+
 void _replacement_registerForRemoteNotifications(UIApplication * self, SEL _cmd) {
     if (![PWUtils isSimulator]) {
         ((void(*)(id, SEL))pw_original_registerForRemoteNotifications_Imp)(self, _cmd);
@@ -439,35 +437,35 @@ void _replacement_registerForRemoteNotifications(UIApplication * self, SEL _cmd)
 @implementation PWPushRuntime
 
 BOOL dynamicDidRegisterUserNotificationSettings(id self, SEL _cmd, id application, id notificationSettings) {
-	[[[PWPlatformModule module] notificationManagerCompat] didRegisterUserNotificationSettings:notificationSettings];
+    [[[PWPlatformModule module] notificationManagerCompat] didRegisterUserNotificationSettings:notificationSettings];
 
-	if ([self respondsToSelector:@selector(application:pw_didRegisterUserNotificationSettings:)]) {
-		[self application:application pw_didRegisterUserNotificationSettings:notificationSettings];
-	}
+    if ([self respondsToSelector:@selector(application:pw_didRegisterUserNotificationSettings:)]) {
+        [self application:application pw_didRegisterUserNotificationSettings:notificationSettings];
+    }
 
-	return YES;
+    return YES;
 }
 
 + (void)swizzleNotificationSettingsHandler {
-	if ([UIApplication sharedApplication].delegate == nil) {
-		return;
-	}
+    if ([UIApplication sharedApplication].delegate == nil) {
+        return;
+    }
 
-	//do not swizzle the same class twice
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		Class appDelegateClass = [[UIApplication sharedApplication].delegate class];
-		
-		[PWUtils swizzle:appDelegateClass
-			fromSelector:@selector(application:didRegisterUserNotificationSettings:)
-			  toSelector:@selector(application:pw_didRegisterUserNotificationSettings:)
-		  implementation:(IMP)dynamicDidRegisterUserNotificationSettings
-			typeEncoding:"v@:::"];
-	});
+    //do not swizzle the same class twice
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class appDelegateClass = [[UIApplication sharedApplication].delegate class];
+        
+        [PWUtils swizzle:appDelegateClass
+            fromSelector:@selector(application:didRegisterUserNotificationSettings:)
+              toSelector:@selector(application:pw_didRegisterUserNotificationSettings:)
+          implementation:(IMP)dynamicDidRegisterUserNotificationSettings
+            typeEncoding:"v@:::"];
+    });
 }
 
 + (BOOL)isSelfTestEnabled {
-	return [PWConfig config].selfTestEnabled && [PWUtils isSimulator];
+    return [PWConfig config].selfTestEnabled && [PWUtils isSimulator];
 }
 
 @end

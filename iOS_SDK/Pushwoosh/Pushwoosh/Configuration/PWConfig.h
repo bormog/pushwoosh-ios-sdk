@@ -4,6 +4,12 @@
 #import "PWNotificationAppSettings.h"
 #import "PWLog+Internal.h"
 
+typedef NS_ENUM(NSInteger, RichMediaStyleType) {
+    PWRichMediaStyleTypeModal,
+    PWRichMediaStyleTypeLegacy,
+    PWRichMediaStyleTypeDefault
+};
+
 @interface PWConfig : NSObject
 
 + (PWConfig *)config;
@@ -135,6 +141,15 @@
 @property (nonatomic, assign, readonly) BOOL preHandleNotificationsWithUrl;
 
 @property (nonatomic, readonly) BOOL lazyInitialization;
+
+@property (nonatomic, readonly) RichMediaStyleType richMediaStyle;
+
+/**
+ key: Pushwoosh_PLUGIN_NOTIFICATION_HANDLER
+ type: boolean
+ value: Flag indicating whether the push notification handling is implemented by the plugin (YES) or by the SDK (NO). By default, this is set to NO.
+ */
+@property (nonatomic, readonly) BOOL isUsingPluginForPushHandling;
 
 
 /**

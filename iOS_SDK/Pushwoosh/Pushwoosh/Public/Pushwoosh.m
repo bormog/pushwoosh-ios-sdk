@@ -12,6 +12,8 @@
 #import "PWPreferences.h"
 #import "PWInAppStorage.h"
 #import "PWServerCommunicationManager.h"
+#import "PushNotificationManager.h"
+#import "PWHashDecoder.h"
 
 #if TARGET_OS_IOS || TARGET_OS_OSX
 #import "PWVersionTracking.h"
@@ -82,8 +84,11 @@ static dispatch_once_t pushwooshOncePredicate;
         self.pushNotificationManager = [[PWPushNotificationsManager alloc] initWithConfig:[PWConfig config]];
 
         self.dataManager = [PWDataManager new];
-
-        _notificationCenterDelegateProxy = [[PWNotificationCenterDelegateProxy alloc] initWithNotificationManager:self.pushNotificationManager];
+                
+        if (![PWConfig config].isUsingPluginForPushHandling) {
+            _notificationCenterDelegateProxy = [[PWNotificationCenterDelegateProxy alloc] initWithNotificationManager:self.pushNotificationManager];
+        }
+        
     }
     
     return self;
@@ -167,6 +172,16 @@ static dispatch_once_t pushwooshOncePredicate;
         return;
     }
     [self.pushNotificationManager unregisterForPushNotificationsWithCompletion:completion];
+}
+
+#pragma mark - SMS and Whatsapp methods
+
+- (void)registerSmsNumber:(NSString * _Nonnull) number {
+    [self.pushNotificationManager registerSmsNumber:number];
+}
+
+- (void)registerWhatsappNumber:(NSString * _Nonnull) number {
+    [self.pushNotificationManager registerWhatsappNumber:number];
 }
 
 #pragma mark - Proxy URL
@@ -362,6 +377,8 @@ static dispatch_once_t pushwooshOncePredicate;
     [self.inAppManager setEmails:emails completion:nil];
 }
 
+
+
 - (void)startServerCommunication {
     [[PWServerCommunicationManager sharedInstance] startServerCommunication];
 }
@@ -385,7 +402,14 @@ static dispatch_once_t pushwooshOncePredicate;
     if (self = [super init]) {
         NSDictionary *apsDict = [payload pw_dictionaryForKey:@"aps"];
         NSString *alertString = [apsDict pw_stringForKey:@"alert"];
+        NSString *hash = [payload pw_stringForKey:@"p"];
         
+        [[PWHashDecoder sharedInstance] parseMessageHash:hash];
+
+        _messageCode = [PWHashDecoder sharedInstance].messageCode;
+        _messageId = [PWHashDecoder sharedInstance].messageId;
+        _campaignId = [PWHashDecoder sharedInstance].campaignId;
+
         if (alertString) {
             _message = alertString;
         } else {
