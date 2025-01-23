@@ -32,7 +32,7 @@ static dispatch_once_t pushwooshOncePredicate;
         NSString *appCode = [PWPreferences preferences].appCode;
         pushwooshInstance = [[Pushwoosh alloc] initWithApplicationCode:appCode];
     });
-
+    
     return pushwooshInstance;
 }
 
@@ -46,17 +46,27 @@ static dispatch_once_t pushwooshOncePredicate;
 
 + (void)initializeWithNewAppCode:(NSString *)appCode {
     [Pushwoosh destroy];
-
+    
     [[PWPreferences preferences] setAppCode:appCode];
     [PWInAppManager updateInAppManagerInstance];
     [[Pushwoosh sharedInstance].dataManager sendAppOpenWithCompletion:nil];
-
+    
 }
 
 - (instancetype)initWithApplicationCode:(NSString *)appCode {
     if (self = [super init]) {
-        // Mandatory log
+        // Mandatory logs
+        NSLog(@"[PW] BUNDLE ID: %@", [PWUtils bundleId]);
+        NSLog(@"[PW] APP CODE: %@", [PWPreferences preferences].appCode);
+        NSLog(@"[PW] PUSHWOOSH SDK VERSION: %@", PUSHWOOSH_VERSION);
+        NSString *apiToken = [PWConfig config].apiToken ?: [PWConfig config].pushwooshApiToken;
+        if (apiToken) {
+            NSLog(@"[PW] API TOKEN: %@", [PWUtils stringWithVisibleFirstAndLastFourCharacters:apiToken]);
+        } else {
+            NSLog(@"[PW] API TOKEN: (null)");
+        }
         NSLog(@"[PW] HWID: %@", [PWPreferences preferences].hwid);
+        NSLog(@"[PW] PUSH TOKEN: %@", [PWPreferences preferences].pushToken);
         
         [PWPreferences preferences].appCode = appCode;
         
@@ -76,15 +86,15 @@ static dispatch_once_t pushwooshOncePredicate;
 #endif
         
 #if TARGET_OS_IOS || TARGET_OS_WATCH
-        PWLogInfo(@"Will show foreground notifications: %d", self.showPushnotificationAlert);
+        PWLogDebug(@"Will show foreground notifications: %d", self.showPushnotificationAlert);
 #endif
         
         self.inAppManager = [PWInAppManager sharedManager];
-
+        
         self.pushNotificationManager = [[PWPushNotificationsManager alloc] initWithConfig:[PWConfig config]];
-
+        
         self.dataManager = [PWDataManager new];
-                
+        
         if (![PWConfig config].isUsingPluginForPushHandling) {
             _notificationCenterDelegateProxy = [[PWNotificationCenterDelegateProxy alloc] initWithNotificationManager:self.pushNotificationManager];
         }
@@ -236,6 +246,7 @@ static dispatch_once_t pushwooshOncePredicate;
 
 - (void)setLanguage:(NSString *)language {
     [PWPreferences preferences].language = language;
+    PWLogInfo(@"Language has been set to: %@", language);
 }
 
 - (NSString *)language {
